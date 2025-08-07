@@ -1,5 +1,5 @@
-.crx
-.pem
-.png
-.zip
-.xd
+*.crx
+*.pem
+*.zip
+*.xd
+example/

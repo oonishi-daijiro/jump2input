@@ -1,16 +1,24 @@
 {
   "name": "Jump2Input",
-  "version": "1.1",
+  "version": "1.3",
   "manifest_version": 3,
 
   "description": "Ctrl+Shift+Yで現在のページの入力フィールドにジャンプします",
   "icons": {
-    "128": "./icon/128.png"
+    "128": "icon/128.png"
   },
 
   "background": {
     "service_worker": "./background.js"
   },
+
+  "content_scripts": [
+    {
+      "js": ["./content_scripts/jump2input.js"],
+      "matches": ["https://*/*", "http://*/*"],
+      "run_at": "document_start"
+    }
+  ],
 
   "commands": {
     "jump to input": {
@@ -23,6 +31,5 @@
   },
   "action": {},
   "host_permissions": ["http://*/*", "https://*/*"],
-  "permissions": ["scripting"],
   "author": "Marujiro"
 }
