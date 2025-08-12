@@ -1,6 +1,6 @@
 {
   "name": "Jump2Input",
-  "version": "1.3",
+  "version": "1.4",
   "manifest_version": 3,
 
   "description": "Ctrl+Shift+Yで現在のページの入力フィールドにジャンプします",
@@ -29,6 +29,7 @@
       "description": "現在のページの入力要素にジャンプします"
     }
   },
+  "permissions": ["commands"],
   "action": {},
   "host_permissions": ["http://*/*", "https://*/*"],
   "author": "Marujiro"

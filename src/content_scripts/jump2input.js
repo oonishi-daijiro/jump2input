@@ -1,4 +1,3 @@
-let previousFocusedInputElementIndex = 0
 
 chrome.runtime.onMessage.addListener((message) => {
   switch (message) {
@@ -27,10 +26,6 @@ class TextInputable {
     this.elm.blur();
   }
 
-  get length() {
-    return (this.elm.value ?? { length: 0 }).length;
-  }
-
   setCursorToEnd() {
     this.elm.setSelectionRange(this.length, this.length)
   };
@@ -38,9 +33,6 @@ class TextInputable {
 
 
 class ContentEditableElement extends TextInputable {
-  get length() {
-    return this.elm.querySelectorAll("*").length;
-  }
 
   setCursorToEnd() {
     const range = document.createRange();
@@ -79,33 +71,46 @@ function getAllTextInputableElements() {
   return allInputableElement.map(e => (["INPUT", "TEXTAREA"].includes(e.nodeName) ? new TextInputable(e) : new ContentEditableElement(e)));
 }
 
-function jump2input() {
-  const inputables = getAllTextInputableElements();
+function* getInputIterator() {
+  let index = 0;
+  let previousFocusedInput = null;
 
-  if (inputables.length >= 1) {
-    if (previousFocusedInputElementIndex === inputables.length) {
-      inputables[previousFocusedInputElementIndex - 1].blur()
-      previousFocusedInputElementIndex = 0
-      return
+  while (true) {
+    const inputables = getAllTextInputableElements();
+    if (inputables.length > 0) {
+      if (index >= inputables.length) {
+        previousFocusedInput?.blur();
+        index = 0;
+        yield;
+      }
+      previousFocusedInput = inputables[index];
+      yield inputables[index];
     } else {
-      inputables[previousFocusedInputElementIndex].focus()
+      yield
     }
+    index++;
+  }
+}
+const inputIterator = getInputIterator();
 
-    inputables[previousFocusedInputElementIndex].setCursorToEnd()
-    const offsetTop = inputables[previousFocusedInputElementIndex].offsetTop
+function jump2input() {
+  const input = inputIterator.next().value;
+  input?.focus();
 
-    if (!isDomInScreen(inputables[previousFocusedInputElementIndex].elm)) {
-      window.scrollTo({
-        left: 0,
-        top: offsetTop
-      })
-    }
-    previousFocusedInputElementIndex += 1
+  if (!isDomInScreen(input?.elm)) {
+    window.scrollTo({
+      left: 0,
+      top: input.elm.offsetTop
+    })
   }
 }
 
 function isDomInScreen(dom) {
-  const offsetFromViewY = dom.getBoundingClientRect().top
-  const screenHeight = screen.height
-  return 0 < offsetFromViewY && offsetFromViewY < screenHeight
+  if (dom) {
+    const offsetFromViewY = dom.getBoundingClientRect().top
+    const screenHeight = screen.height
+    return 0 < offsetFromViewY && offsetFromViewY < screenHeight
+  } else {
+    return true;
+  }
 }
