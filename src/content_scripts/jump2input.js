@@ -27,7 +27,7 @@ class TextInputable {
   }
 
   setCursorToEnd() {
-    this.elm.setSelectionRange(this.length, this.length)
+    this.elm.setSelectionRange(this.elm.value.length, this.elm.value.length)
   };
 }
 
@@ -96,6 +96,7 @@ const inputIterator = getInputIterator();
 function jump2input() {
   const input = inputIterator.next().value;
   input?.focus();
+  input?.setCursorToEnd();
 
   if (!isDomInScreen(input?.elm)) {
     window.scrollTo({
